@@ -11,6 +11,7 @@ on:
 jobs:
   run_python_analysis:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -18,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'  # Or any version you want
+          python-version: '3.8'
 
       - name: Install dependencies
         run: |
@@ -26,4 +27,13 @@ jobs:
 
       - name: Run Python script
         run: |
-          python data_cleaning_analysis.py
+          python data_analysis.py
+
+      - name: Upload generated files as artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: analysis-files
+          path: |
+            final_data.csv
+            foreign_workers_plot.png
+            gdp_unemployment_plot.png
