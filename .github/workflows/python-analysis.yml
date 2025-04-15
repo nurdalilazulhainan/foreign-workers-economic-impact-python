@@ -28,12 +28,11 @@ jobs:
         run: |
           python data_cleaning_analysis.py
 
-      - name: Commit and push generated files
-        run: |
-          git config --global user.name "Your GitHub Username"
-          git config --global user.email "your-email@example.com"
-          git add final_data.csv foreign_workers_plot.png gdp_unemployment_plot.png
-          git commit -m "Add generated analysis files"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload generated files as artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: analysis-files
+          path: |
+            final_data.csv
+            foreign_workers_plot.png
+            gdp_unemployment_plot.png
