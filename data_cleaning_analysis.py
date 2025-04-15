@@ -1,48 +1,39 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+name: Python Script Analysis
 
-# Simulate data for foreign workers and economic indicators (2010-2020)
-years = range(2010, 2021)
-countries = ["Bangladesh", "Indonesia", "Myanmar", "Nepal"]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-# Create the foreign workers dataset
-foreign_workers = {
-    "Year": np.tile(years, len(countries)),
-    "Country": np.repeat(countries, len(years)),
-    "Workers": np.random.randint(1000, 10000, size=len(years) * len(countries))
-}
+jobs:
+  run_python_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-# Create the economic dataset
-economic_data = {
-    "Year": years,
-    "GDP": np.random.randint(300, 600, len(years)),
-    "Unemployment_Rate": np.random.randint(3, 10, len(years))
-}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
 
-# Convert to DataFrames
-workers_df = pd.DataFrame(foreign_workers)
-economic_df = pd.DataFrame(economic_data)
+      - name: Install dependencies
+        run: |
+          pip install pandas matplotlib seaborn numpy
 
-# Merge datasets
-final_data = pd.merge(workers_df, economic_df, on="Year")
+      - name: Run Python script
+        run: |
+          python data_cleaning_analysis.py
 
-# Save cleaned data to CSV
-final_data.to_csv('final_data.csv', index=False)
-
-# Plot foreign workers over the years (line plot)
-plt.figure(figsize=(10,6))
-sns.lineplot(data=final_data, x='Year', y='Workers', hue='Country', marker='o')
-plt.title("Total Foreign Workers in Malaysia by Country (2010-2020)")
-plt.xlabel("Year")
-plt.ylabel("Number of Foreign Workers")
-plt.savefig("foreign_workers_plot.png")
-
-# Plot GDP vs. Unemployment rate (scatter plot)
-plt.figure(figsize=(10,6))
-sns.scatterplot(data=final_data, x='GDP', y='Unemployment_Rate', hue='Year', palette="viridis")
-plt.title("GDP vs. Unemployment Rate in Malaysia (2010-2020)")
-plt.xlabel("GDP (in Billions)")
-plt.ylabel("Unemployment Rate (%)")
-plt.savefig("gdp_unemployment_plot.png")
+      - name: Commit and push generated files
+        run: |
+          git config --global user.name "Your GitHub Username"
+          git config --global user.email "your-email@example.com"
+          git add final_data.csv foreign_workers_plot.png gdp_unemployment_plot.png
+          git commit -m "Add generated analysis files"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
